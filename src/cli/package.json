@@ -1,0 +1,18 @@
+{
+  "name": "logic-app-to-plantuml-cli",
+  "version": "1.0.0-beta01",
+  "description": "CLI for generating Plant UML Activity Diagrams from Azure Logic App definitions.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "logicapps",
+    "plantuml"
+  ],
+  "author": "Lars-Erik Aabech",
+  "license": "MIT",
+  "dependencies": {
+    "logic-app-to-plantuml": "file:../core"
+  }
+}

@@ -1,0 +1,22 @@
+{
+    "name": "logic-app-to-plantuml-web",
+    "version": "1.0.0-beta01",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "deflate-js": "^0.2.3",
+        "logic-app-to-plantuml": "file:../core",
+        "vue": "^2.6.12",
+        "vue-hot-reload-api": "^2.3.4"
+    },
+    "devDependencies": {
+        "@vue/component-compiler-utils": "^3.2.0",
+        "sass": "^1.29.0",
+        "vue-template-compiler": "^2.6.12"
+    }
+}
