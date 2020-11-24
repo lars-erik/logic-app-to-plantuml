@@ -4,6 +4,8 @@ Generates Plant UML Activity Diagrams from Azure Logic App definitions.
 
 [Online version](https://lars-erik.github.io/logic-app-to-plantuml/index.html)
 
+[Video demo (YouTube)](https://youtu.be/yr1PQG9ANks)
+
 ### Wishlist
 
 #### Technical
