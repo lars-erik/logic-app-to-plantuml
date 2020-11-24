@@ -17,6 +17,7 @@ Generates Plant UML Activity Diagrams from Azure Logic App definitions.
 - Any missing prominent action type
 
 #### PlantUML
+- Bother to handle indentation
 - Include styling from raw GH-file
 - Improve color usage
 - Icons for activities?
