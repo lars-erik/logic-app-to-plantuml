@@ -4,7 +4,9 @@
     "description": "",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "parcel index.html",
+        "build": "parcel build index.html --public-url ./"
     },
     "author": "",
     "license": "MIT",
@@ -16,6 +18,7 @@
     },
     "devDependencies": {
         "@vue/component-compiler-utils": "^3.2.0",
+        "cssnano": "^4.1.10",
         "sass": "^1.29.0",
         "vue-template-compiler": "^2.6.12"
     }
