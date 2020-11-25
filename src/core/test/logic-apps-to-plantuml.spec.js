@@ -7,7 +7,10 @@ describe("converting logic apps to plantuml", function() {
     it("generates full activity diagram", function() {
 
         const input = fs.readFileSync('./test/logicapp.json');
-        const puml = logic2puml.convert(input);
+        let puml = logic2puml.convert(input);
+
+        // arg
+        puml = puml.replace(/\n/gi, '\r\n');
 
         this.verify(puml);
 
