@@ -1,6 +1,7 @@
 <template>
   <div>
     <h1>Convert Logic Apps to PlantUML</h1>
+    <p><a href="https://github.com/lars-erik/logic-app-to-plantuml">GitHub</a></p>
     <form role="form" class="form">
       <div class="form-group">
         <textarea

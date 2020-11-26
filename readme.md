@@ -16,7 +16,14 @@ Generates Plant UML Activity Diagrams from Azure Logic App definitions.
 - Parse Logic App expressions for paths / properties
 - Generate guard clauses based on if / switch expressions
 - Any missing control flows (?)
-- Any missing prominent action type
+    - Can do
+        - Foreach
+        - Switch
+        - If
+        - Parallel branches
+    - Can not do
+        - ?
+- Any missing prominent action and/or trigger type
 
 #### PlantUML
 - Bother to handle indentation
