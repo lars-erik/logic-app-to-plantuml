@@ -9,10 +9,18 @@ describe("converting logic apps to plantuml", function() {
         const input = fs.readFileSync('./test/logicapp.json');
         let puml = logic2puml.convert(input);
 
-        // arg
         puml = puml.replace(/\n/gi, '\r\n');
+        this.verify(puml, "puml");
 
-        this.verify(puml);
+    });
+
+    it("sorts complex steps by run after", function() {
+
+        const input = fs.readFileSync('./test/complex-sort.json');
+        let puml = logic2puml.convert(input);
+
+        puml = puml.replace(/\n/gi, '\r\n');
+        this.verify(puml, "puml");
 
     });
 });

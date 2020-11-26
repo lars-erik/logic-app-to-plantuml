@@ -1,0 +1,507 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Execute_for_type": {
+                "cases": {
+                    "Companies": {
+                        "actions": {
+                            "For_each_company": {
+                                "actions": {
+                                    "Existing": {
+                                        "inputs": {
+                                            "id": "@coalesce(body('Find_company')?['results']?[0]?['id'], 0)",
+                                            "properties": "@body('Find_company')?['results']?[0]?['properties']"
+                                        },
+                                        "runAfter": {
+                                            "Find_company": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Compose"
+                                    },
+                                    "Find_company": {
+                                        "inputs": {
+                                            "body": {
+                                                "filters": [{
+                                                    "operator": "EQ",
+                                                    "propertyName": "parent_id",
+                                                    "value": "@{items('For_each_company')?['companyid']}"
+                                                }],
+                                                "properties": []
+                                            },
+                                            "host": {
+                                                "connection": {
+                                                    "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "path": "/targetapi/objects/@{encodeURIComponent('companies')}/search"
+                                        },
+                                        "runAfter": {},
+                                        "type": "ApiConnection"
+                                    },
+                                    "Switch": {
+                                        "cases": {
+                                            "Delete": {
+                                                "actions": {
+                                                    "Delete_if_existing_": {
+                                                        "actions": {
+                                                            "Set_deleted_in_cosi_to_true_on_company": {
+                                                                "inputs": {
+                                                                    "body": {
+                                                                        "properties": {
+                                                                            "deleted_in_cosi": "true"
+                                                                        }
+                                                                    },
+                                                                    "host": {
+                                                                        "connection": {
+                                                                            "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                                        }
+                                                                    },
+                                                                    "method": "patch",
+                                                                    "path": "/targetapi/objects/@{encodeURIComponent('companies')}/@{encodeURIComponent(outputs('Existing')?['id'])}"
+                                                                },
+                                                                "runAfter": {},
+                                                                "type": "ApiConnection"
+                                                            }
+                                                        },
+                                                        "expression": {
+                                                            "and": [{
+                                                                "greater": [
+                                                                    "@int(outputs('Existing')?['id'])",
+                                                                    0
+                                                                ]
+                                                            }]
+                                                        },
+                                                        "runAfter": {},
+                                                        "type": "If"
+                                                    }
+                                                },
+                                                "case": "D"
+                                            }
+                                        },
+                                        "default": {
+                                            "actions": {
+                                                "Associate_to_parent_if_any": {
+                                                    "actions": {
+                                                        "Associate_if_parent_found": {
+                                                            "actions": {
+                                                                "Associate_parent_company_to_child_company": {
+                                                                    "inputs": {
+                                                                        "body": {
+                                                                            "fromObjectId": "@outputs('Existing_parent')?['id']",
+                                                                            "toObjectId": "@variables('VariableA')"
+                                                                        },
+                                                                        "host": {
+                                                                            "connection": {
+                                                                                "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                                            }
+                                                                        },
+                                                                        "method": "put",
+                                                                        "path": "/targetapi/associations"
+                                                                    },
+                                                                    "runAfter": {},
+                                                                    "type": "ApiConnection"
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [{
+                                                                    "greater": [
+                                                                        "@int(outputs('Existing_parent')?['id'])",
+                                                                        0
+                                                                    ]
+                                                                }]
+                                                            },
+                                                            "runAfter": {
+                                                                "Existing_parent": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        },
+                                                        "Existing_parent": {
+                                                            "inputs": {
+                                                                "id": "@coalesce(body('Find_parent_company')?['results']?[0]?['id'], '0')"
+                                                            },
+                                                            "runAfter": {
+                                                                "Find_parent_company": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "Compose"
+                                                        },
+                                                        "Find_parent_company": {
+                                                            "inputs": {
+                                                                "body": {
+                                                                    "filters": [{
+                                                                        "operator": "EQ",
+                                                                        "propertyName": "parent_id",
+                                                                        "value": "@items('For_each_company')?['ParentId']"
+                                                                    }]
+                                                                },
+                                                                "host": {
+                                                                    "connection": {
+                                                                        "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                                    }
+                                                                },
+                                                                "method": "post",
+                                                                "path": "/targetapi/objects/@{encodeURIComponent('companies')}/search"
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "ApiConnection"
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [{
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@items('For_each_company')?['ParentId']",
+                                                                        "@null"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@items('For_each_company')?['ParentId']",
+                                                                        "@''"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "runAfter": {
+                                                        "Update_or_Insert": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "Manage_contact_if_email_is_set": {
+                                                    "actions": {
+                                                        "Associate_contact_to_company": {
+                                                            "inputs": {
+                                                                "body": {
+                                                                    "fromObjectId": "@variables('VariableA')",
+                                                                    "toObjectId": "@variables('VariableB')"
+                                                                },
+                                                                "host": {
+                                                                    "connection": {
+                                                                        "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                                    }
+                                                                },
+                                                                "method": "put",
+                                                                "path": "/targetapi/associations"
+                                                            },
+                                                            "runAfter": {
+                                                                "Update_or_insert_main_contact": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "ApiConnection"
+                                                        },
+                                                        "Existing_contact": {
+                                                            "inputs": {
+                                                                "id": "@{coalesce(body('Find_contact')?['results']?[0]?['id'], '0')}"
+                                                            },
+                                                            "runAfter": {
+                                                                "Find_contact": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "Compose"
+                                                        },
+                                                        "Find_contact": {
+                                                            "inputs": {
+                                                                "body": {
+                                                                    "filters": [{
+                                                                        "operator": "EQ",
+                                                                        "propertyName": "email",
+                                                                        "value": "@items('For_each_company')?['ContactEmailAddress']"
+                                                                    }]
+                                                                },
+                                                                "host": {
+                                                                    "connection": {
+                                                                        "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                                    }
+                                                                },
+                                                                "method": "post",
+                                                                "path": "/targetapi/objects/@{encodeURIComponent('contacts')}/search"
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "ApiConnection"
+                                                        },
+                                                        "Update_or_insert_main_contact": {
+                                                            "actions": {
+                                                                "Set_VariableB_to_updated_id": {
+                                                                    "inputs": {
+                                                                        "name": "VariableB",
+                                                                        "value": "@{body('Update_main_contact')?['id']}"
+                                                                    },
+                                                                    "runAfter": {
+                                                                        "Update_main_contact": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "SetVariable"
+                                                                },
+                                                                "Update_main_contact": {
+                                                                    "inputs": {
+                                                                        "body": {
+                                                                            "properties": {}
+                                                                        },
+                                                                        "host": {
+                                                                            "connection": {
+                                                                                "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                                            }
+                                                                        },
+                                                                        "method": "patch",
+                                                                        "path": "/targetapi/objects/@{encodeURIComponent('contacts')}/@{encodeURIComponent(int(outputs('Existing_contact')?['id']))}"
+                                                                    },
+                                                                    "runAfter": {},
+                                                                    "type": "ApiConnection"
+                                                                }
+                                                            },
+                                                            "else": {
+                                                                "actions": {
+                                                                    "Insert_main_contact": {
+                                                                        "inputs": {
+                                                                            "body": {
+                                                                                "properties": {
+
+                                                                                }
+                                                                            },
+                                                                            "host": {
+                                                                                "connection": {
+                                                                                    "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                                                }
+                                                                            },
+                                                                            "method": "post",
+                                                                            "path": "/targetapi/objects/@{encodeURIComponent('contacts')}"
+                                                                        },
+                                                                        "runAfter": {},
+                                                                        "type": "ApiConnection"
+                                                                    },
+                                                                    "Set_VariableB_to_inserted_id": {
+                                                                        "inputs": {
+                                                                            "name": "VariableB",
+                                                                            "value": "@{body('Insert_main_contact')?['id']}"
+                                                                        },
+                                                                        "runAfter": {
+                                                                            "Insert_main_contact": [
+                                                                                "Succeeded"
+                                                                            ]
+                                                                        },
+                                                                        "type": "SetVariable"
+                                                                    }
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [{
+                                                                    "greater": [
+                                                                        "@int(outputs('Existing_contact')?['id'])",
+                                                                        0
+                                                                    ]
+                                                                }]
+                                                            },
+                                                            "runAfter": {
+                                                                "Existing_contact": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [{
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@items('For_each_company')?['ContactEmailAddress']",
+                                                                        "@null"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@items('For_each_company')?['ContactEmailAddress']",
+                                                                        "@''"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "runAfter": {
+                                                        "Associate_to_parent_if_any": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "Update_or_Insert": {
+                                                    "actions": {
+                                                        "Set_VariableA_to_updated_company_id": {
+                                                            "inputs": {
+                                                                "name": "VariableA",
+                                                                "value": "@body('Update_company')?['id']"
+                                                            },
+                                                            "runAfter": {
+                                                                "Update_company": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "SetVariable"
+                                                        },
+                                                        "Update_company": {
+                                                            "inputs": {
+                                                                "body": {
+                                                                    "properties": {}
+                                                                },
+                                                                "host": {
+                                                                    "connection": {
+                                                                        "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                                    }
+                                                                },
+                                                                "method": "patch",
+                                                                "path": "/targetapi/objects/@{encodeURIComponent('companies')}/@{encodeURIComponent(outputs('Existing')?['id'])}"
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "ApiConnection"
+                                                        }
+                                                    },
+                                                    "else": {
+                                                        "actions": {
+                                                            "Create_company": {
+                                                                "inputs": {
+                                                                    "body": {
+                                                                        "properties": {}
+                                                                    },
+                                                                    "host": {
+                                                                        "connection": {
+                                                                            "name": "@parameters('$connections')['TargetAPI']['connectionId']"
+                                                                        }
+                                                                    },
+                                                                    "method": "post",
+                                                                    "path": "/targetapi/objects/@{encodeURIComponent('companies')}"
+                                                                },
+                                                                "runAfter": {},
+                                                                "type": "ApiConnection"
+                                                            },
+                                                            "Set_VariableA_to_inserted_company_id": {
+                                                                "inputs": {
+                                                                    "name": "VariableA",
+                                                                    "value": "@body('Create_company')?['id']"
+                                                                },
+                                                                "runAfter": {
+                                                                    "Create_company": [
+                                                                        "Succeeded"
+                                                                    ]
+                                                                },
+                                                                "type": "SetVariable"
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [{
+                                                            "greater": [
+                                                                "@int(outputs('Existing')?['id'])",
+                                                                0
+                                                            ]
+                                                        }]
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "If"
+                                                }
+                                            }
+                                        },
+                                        "expression": "@items('For_each_company')?['Operation']",
+                                        "runAfter": {
+                                            "Existing": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Switch"
+                                    }
+                                },
+                                "foreach": "@triggerBody()?['Data']",
+                                "runAfter": {},
+                                "runtimeConfiguration": {
+                                    "concurrency": {
+                                        "repetitions": 1
+                                    }
+                                },
+                                "type": "Foreach"
+                            }
+                        },
+                        "case": "Companies"
+                    }
+                },
+                "default": {
+                    "actions": {
+                        "Unsupported_type": {
+                            "inputs": {
+                                "runStatus": "Cancelled"
+                            },
+                            "runAfter": {},
+                            "type": "Terminate"
+                        }
+                    }
+                },
+                "expression": "@triggerBody()?['Type']",
+                "runAfter": {
+                    "Initialize_Variable_B": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Switch"
+            },
+            "Initialize_Variable_B": {
+                "inputs": {
+                    "variables": [{
+                        "name": "VariableB",
+                        "type": "string",
+                        "value": "0"
+                    }]
+                },
+                "runAfter": {
+                    "Initialize_Variable_A": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_Variable_A": {
+                "inputs": {
+                    "variables": [{
+                        "name": "VariableA",
+                        "type": "string",
+                        "value": "0"
+                    }]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "manual": {
+                "inputs": {
+                    "schema": {
+                        "additionalProperties": true,
+                        "type": "object"
+                    }
+                },
+                "kind": "Http",
+                "type": "Request"
+            }
+        }
+    }
+}

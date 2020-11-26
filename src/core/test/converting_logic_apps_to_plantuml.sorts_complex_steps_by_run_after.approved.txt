@@ -1,0 +1,96 @@
+@startuml
+!$defaultBg = '#d9dadb'
+!$borderColor = '#999a9b'
+!$darkColor = '#494a4b'
+skinparam ActivityDiamondBackgroundColor $defaultBg
+skinparam ActivityDiamondBorderColor $borderColor
+skinparam ActivityBorderColor $borderColor
+skinparam ArrowColor $darkColor
+skinparam ActivityBarColor $darkColor
+skinparam ActivityStartColor $darkColor
+skinparam ActivityEndColor $darkColor
+start
+fork
+#d9eced:Http Request;
+endfork
+#eadef8:<i>InitializeVariable</i>
+Initialize Variable A;
+#eadef8:<i>InitializeVariable</i>
+Initialize Variable B;
+if (Execute for type) then (Companies)
+  while (For each company)
+#c4e2ff:<i>ApiConnection</i>
+Find company;
+#edeafe:<i>Compose</i>
+Existing;
+if (Switch) then (Delete)
+  if (Delete if existing) then
+            #c4e2ff:<i>ApiConnection</i>
+Set deleted in cosi to true on company;
+
+        
+            
+        endif
+        else (default)
+  if (Update or Insert) then
+            #c4e2ff:<i>ApiConnection</i>
+Update company;
+#eadef8:<i>SetVariable</i>
+Set VariableA to updated company id;
+
+        else
+            #c4e2ff:<i>ApiConnection</i>
+Create company;
+#eadef8:<i>SetVariable</i>
+Set VariableA to inserted company id;
+
+        endif
+        if (Associate to parent if any) then
+            #c4e2ff:<i>ApiConnection</i>
+Find parent company;
+#edeafe:<i>Compose</i>
+Existing parent;
+if (Associate if parent found) then
+            #c4e2ff:<i>ApiConnection</i>
+Associate parent company to child company;
+
+        
+            
+        endif
+        
+        
+            
+        endif
+        if (Manage contact if email is set) then
+            #c4e2ff:<i>ApiConnection</i>
+Find contact;
+#edeafe:<i>Compose</i>
+Existing contact;
+if (Update or insert main contact) then
+            #c4e2ff:<i>ApiConnection</i>
+Update main contact;
+#eadef8:<i>SetVariable</i>
+Set VariableB to updated id;
+
+        else
+            #c4e2ff:<i>ApiConnection</i>
+Insert main contact;
+#eadef8:<i>SetVariable</i>
+Set VariableB to inserted id;
+
+        endif
+        #c4e2ff:<i>ApiConnection</i>
+Associate contact to company;
+
+        
+            
+        endif
+        endif
+endwhile
+else (default)
+  #fedcdb:<i>Terminate</i>
+Unsupported type;
+stop
+endif
+stop
+@enduml

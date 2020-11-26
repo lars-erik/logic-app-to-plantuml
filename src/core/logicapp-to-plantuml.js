@@ -32,6 +32,31 @@ function actionsByKey(a, b) {
     return 0;
 };
 
+function sortByRunAfter(array) {
+    var clone = Array.from(array),
+        target = new Array(array.length),
+        max = 999,
+        count = 0,
+        prev = null;
+    while (clone.length && count++ < max) {
+        let next = [];
+        for (let i = clone.length - 1; i >= 0; i--) {
+            const runAfterKeys = Object.keys((clone[i] || {}).runAfter || {});
+            if ((prev === null && runAfterKeys.length === 0) ||
+                runAfterKeys.indexOf(prev) > -1) {
+                next.push(clone[i]);
+                clone.splice(i, 1);
+            }
+        }
+        if (next.length !== 1) {
+            throw new Error("Parallel executions not supported yet.");
+        }
+        target = target.concat(next);
+        prev = next[0].key;
+    }
+    return target;
+}
+
 function niceName(container) {
     return container.key.replace(/_/gi, ' ').trim();
 }
@@ -41,10 +66,11 @@ function activityUml(container) {
 }
 
 function sequenceUml(container) {
-    return Object
-        .keys(container.actions)
-        .map(key => Object.assign({}, container.actions[key], { key: key }))
-        .sort(actionsByKey)
+    return sortByRunAfter(
+            Object
+            .keys(container.actions)
+            .map(key => Object.assign({}, container.actions[key], { key: key }))
+        )
         .map(generateUml)
         .join('');
 }
