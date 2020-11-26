@@ -1,10 +1,11 @@
 {
     "name": "logic-app-to-plantuml",
-    "version": "1.0.0-beta01",
+    "version": "1.0.0-beta02",
     "description": "Generates Plant UML Activity Diagrams from Azure Logic App definitions.",
     "main": "index.js",
     "scripts": {
-        "test": "mocha"
+        "test": "mocha",
+        "test-watch": "mocha --watch"
     },
     "keywords": [
         "logicapps",

@@ -20,43 +20,6 @@ const typeColors = {
     'Terminate': colors.red
 };
 
-function actionsByKey(a, b) {
-    if (a.runAfter[b.key] || Object.keys(b.runAfter).length === 0) {
-        return 1;
-    } else if (b.runAfter[a.key] || Object.keys(a.runAfter).length === 0) {
-        return -1;
-    }
-    // else if (Object.keys(a.runAfter).length && Object.keys(b.runAfter).length) {
-    //     return 1;
-    // }
-    return 0;
-};
-
-function sortByRunAfter(array) {
-    var clone = Array.from(array),
-        target = new Array(array.length),
-        max = 999,
-        count = 0,
-        prev = null;
-    while (clone.length && count++ < max) {
-        let next = [];
-        for (let i = clone.length - 1; i >= 0; i--) {
-            const runAfterKeys = Object.keys((clone[i] || {}).runAfter || {});
-            if ((prev === null && runAfterKeys.length === 0) ||
-                runAfterKeys.indexOf(prev) > -1) {
-                next.push(clone[i]);
-                clone.splice(i, 1);
-            }
-        }
-        if (next.length !== 1) {
-            throw new Error("Parallel executions not supported yet.");
-        }
-        target = target.concat(next);
-        prev = next[0].key;
-    }
-    return target;
-}
-
 function niceName(container) {
     return container.key.replace(/_/gi, ' ').trim();
 }
@@ -65,14 +28,39 @@ function activityUml(container) {
     return `${typeColors[container.type] || ''}:<i>${container.type}</i>\n${niceName(container)};\n`;
 }
 
+function actionsToArray(actions) {
+    return Object
+        .keys(actions)
+        .map(key => Object.assign({}, actions[key], { key: key }));
+}
+
+function chainSequence(next, actionsArray) {
+    let output = [];
+    if (next.length > 1) {
+        for (let i = 0; i < next.length; i++) {
+            output.push(`fork${i>0?'again':''}\n`);
+            output.push(chainUml(next[i], actionsArray));
+        }
+        output.push('endfork\n');
+    } else if (next.length > 0) {
+        output.push(chainUml(next[0], actionsArray));
+    }
+
+    return output.join('');
+}
+
+function chainUml(action, actionsArray) {
+    let output = [],
+        next = actionsArray.filter(x => Object.keys(x.runAfter).indexOf(action.key) > -1);
+    output.push(generateUml(action));
+    output.push(chainSequence(next, actionsArray));
+    return output.join('');
+}
+
 function sequenceUml(container) {
-    return sortByRunAfter(
-            Object
-            .keys(container.actions)
-            .map(key => Object.assign({}, container.actions[key], { key: key }))
-        )
-        .map(generateUml)
-        .join('');
+    let asArray = actionsToArray(container.actions),
+        next = asArray.filter(x => Object.keys(x.runAfter).length === 0);
+    return chainSequence(next, asArray);
 }
 
 function switchUml(container) {

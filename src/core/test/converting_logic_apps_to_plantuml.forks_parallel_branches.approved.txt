@@ -1,0 +1,30 @@
+@startuml
+!$defaultBg = '#d9dadb'
+!$borderColor = '#999a9b'
+!$darkColor = '#494a4b'
+skinparam ActivityDiamondBackgroundColor $defaultBg
+skinparam ActivityDiamondBorderColor $borderColor
+skinparam ActivityBorderColor $borderColor
+skinparam ArrowColor $darkColor
+skinparam ActivityBarColor $darkColor
+skinparam ActivityStartColor $darkColor
+skinparam ActivityEndColor $darkColor
+start
+fork
+:Manual Manual;
+endfork
+fork
+:<i>Generic</i>
+Thread A.1;
+:<i>Generic</i>
+Thread A.2;
+:<i>Generic</i>
+Thread A.3;
+forkagain
+:<i>Generic</i>
+Thread B.1;
+:<i>Generic</i>
+Thread B.2;
+endfork
+stop
+@enduml
