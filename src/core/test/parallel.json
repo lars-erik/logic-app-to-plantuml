@@ -1,0 +1,38 @@
+{
+    "definition": {
+        "actions": {
+            "Thread A.1": {
+                "type": "Generic",
+                "runAfter": {}
+            },
+            "Thread B.1": {
+                "type": "Generic",
+                "runAfter": {}
+            },
+            "Thread A.2": {
+                "type": "Generic",
+                "runAfter": {
+                    "Thread A.1": []
+                }
+            },
+            "Thread B.2": {
+                "type": "Generic",
+                "runAfter": {
+                    "Thread B.1": []
+                }
+            },
+            "Thread A.3": {
+                "type": "Generic",
+                "runAfter": {
+                    "Thread A.2": []
+                }
+            }
+        },
+        "triggers": {
+            "manual": {
+                "kind": "Manual",
+                "type": "Manual"
+            }
+        }
+    }
+}

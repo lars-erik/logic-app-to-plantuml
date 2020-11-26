@@ -23,4 +23,14 @@ describe("converting logic apps to plantuml", function() {
         this.verify(puml, "puml");
 
     });
+
+    it("forks parallel branches", function() {
+
+        const input = fs.readFileSync('./test/parallel.json');
+        let puml = logic2puml.convert(input);
+
+        puml = puml.replace(/\n/gi, '\r\n');
+        this.verify(puml, "puml");
+
+    });
 });
