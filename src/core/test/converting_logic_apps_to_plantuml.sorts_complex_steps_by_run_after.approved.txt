@@ -24,55 +24,55 @@ Find company;
 #edeafe:<i>Compose</i>
 Existing;
 if (Switch) then (Delete)
-  if (Delete if existing) then
+  if (Delete if existing) then (yes)
             #c4e2ff:<i>ApiConnection</i>
 Set deleted in cosi to true on company;
 
-        
+        else (no)
             
         endif
         else (default)
-  if (Update or Insert) then
+  if (Update or Insert) then (yes)
             #c4e2ff:<i>ApiConnection</i>
 Update company;
 #eadef8:<i>SetVariable</i>
 Set VariableA to updated company id;
 
-        else
+        else (no)
             #c4e2ff:<i>ApiConnection</i>
 Create company;
 #eadef8:<i>SetVariable</i>
 Set VariableA to inserted company id;
 
         endif
-        if (Associate to parent if any) then
+        if (Associate to parent if any) then (yes)
             #c4e2ff:<i>ApiConnection</i>
 Find parent company;
 #edeafe:<i>Compose</i>
 Existing parent;
-if (Associate if parent found) then
+if (Associate if parent found) then (yes)
             #c4e2ff:<i>ApiConnection</i>
 Associate parent company to child company;
 
-        
+        else (no)
             
         endif
         
-        
+        else (no)
             
         endif
-        if (Manage contact if email is set) then
+        if (Manage contact if email is set) then (yes)
             #c4e2ff:<i>ApiConnection</i>
 Find contact;
 #edeafe:<i>Compose</i>
 Existing contact;
-if (Update or insert main contact) then
+if (Update or insert main contact) then (yes)
             #c4e2ff:<i>ApiConnection</i>
 Update main contact;
 #eadef8:<i>SetVariable</i>
 Set VariableB to updated id;
 
-        else
+        else (no)
             #c4e2ff:<i>ApiConnection</i>
 Insert main contact;
 #eadef8:<i>SetVariable</i>
@@ -82,7 +82,7 @@ Set VariableB to inserted id;
         #c4e2ff:<i>ApiConnection</i>
 Associate contact to company;
 
-        
+        else (no)
             
         endif
         endif

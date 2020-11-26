@@ -21,16 +21,16 @@ Initialize neutral message;
 Detect Sentiment (V2);
 #edeafe:<i>Compose</i>
 Store sentiment;
-if (Is sentiment happy) then
+if (Is sentiment happy) then (yes)
             #eadef8:<i>SetVariable</i>
 Set happy;
 
-        else
-            if (Is sentiment sour) then
+        else (no)
+            if (Is sentiment sour) then (yes)
             #eadef8:<i>SetVariable</i>
 Set sour;
 
-        
+        else (no)
             
         endif
         

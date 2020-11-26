@@ -94,9 +94,9 @@ function foreachUml(container) {
 }
 
 function ifUml(container) {
-    return `if (${niceName(container)}) then
+    return `if (${niceName(container)}) then (yes)
             ${sequenceUml(container)}
-        ${container.else ? 'else' : ''}
+        else (no)
             ${sequenceUml(container.else || { actions: {} })}
         endif
         `;
@@ -109,8 +109,9 @@ function triggerUml(container) {
             'fork',
             index > 0 ? 'again' : '',
             '\n',
-            `${typeColors[container.triggers[triggerKey].kind] || ''}`,
-            `:${container.triggers[triggerKey].kind} ${container.triggers[triggerKey].type};\n`
+            `${typeColors[container.triggers[triggerKey].kind] || ''}:`,
+            container.triggers[triggerKey].kind ? `${container.triggers[triggerKey].kind} ` : '',
+            `${container.triggers[triggerKey].type};\n`
         ].join(''))
         .join(''),
         'endfork\n'
