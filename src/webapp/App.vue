@@ -11,6 +11,7 @@
         ></textarea>
       </div>
     </form>
+    <div class="alert alert-danger" v-if="error">{{error}}</div>
     <img id="im" v-bind:src="imgurl"/>
     <pre>{{ plantuml }}</pre>
   </div>
@@ -96,15 +97,23 @@ export default {
       message: "Hello world!",
       logicapp: "",
       plantuml: "",
-      imgurl: ""
+      imgurl: "",
+      error: null
     };
   },
   watch: {
     logicapp() {
-      let plantuml = logic2puml.convert(this.logicapp);
-      let url = compress(plantuml);
-      this.imgurl = url;
-      this.plantuml = plantuml;
+      try {
+        let plantuml = logic2puml.convert(this.logicapp);
+        let url = compress(plantuml);
+        this.imgurl = url;
+        this.plantuml = plantuml;
+        this.error = null;
+      } catch(e) {
+        this.imgurl = '';
+        this.plantuml = '';
+        this.error = e.message;
+      }
     },
   },
   mounted() {
