@@ -88,7 +88,7 @@ function compress(s) {
   let bytes = Array.prototype.map.call(s, c => c.charCodeAt(0));
   let deflated = deflate.deflate(bytes);
   let encoded = encode64(deflated);
-  return "http://www.plantuml.com/plantuml/svg/" + encoded;
+  return "https://www.plantuml.com/plantuml/svg/" + encoded;
 }
 
 export default {
